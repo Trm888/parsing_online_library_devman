@@ -1,12 +1,12 @@
 import os
 from pathlib import Path
+from urllib.parse import urljoin, urlparse, unquote
 
-from bs4 import BeautifulSoup
-from pathvalidate import sanitize_filename
 import requests
 import urllib3
+from bs4 import BeautifulSoup
+from pathvalidate import sanitize_filename
 from requests import HTTPError
-from urllib.parse import urljoin, urlparse, unquote
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -21,62 +21,29 @@ def parse_book_page(book_id: int):
     response = requests.get(url)
     response.raise_for_status()
     soup = BeautifulSoup(response.text, 'lxml')
-    title_author_tag = soup.find('body').find('td', class_="ow_px_td").find('h1')
+    title_author_tag = soup.find('td', class_="ow_px_td").find('h1')
     title_author_text = title_author_tag.text
     title, author = title_author_text.split('::')
-    genres = soup.find('body').find('span', class_="d_book").find_all('a')
+    genres = soup.find('span', class_="d_book").find_all('a')
     genres_list = []
     for genre in genres:
         genres_list.append(genre.text)
-    relative_url = soup.find('body').find_all('div', class_="texts")
+    comments = soup.find_all('div', class_="texts")
     comment_list = []
-    for comment in relative_url:
+    for comment in comments:
         comment_list.append(comment.find('span').text)
-    book_information = {'Автор': author.strip(),
-                        'Заголовок': title.strip(),
-                        'Жанр': genres_list,
-                        'Комментарии': comment_list}
+    relative_image_url = soup.find('div', class_="bookimage").find('img')['src']
+    absolute_image_url = urljoin('https://tululu.org/', relative_image_url)
+    book_information = {
+        'ID': book_id,
+        'Автор': author.strip(),
+        'Заголовок': title.strip(),
+        'Жанр': genres_list,
+        'Комментарии': comment_list,
+        'Ссылка обложки': absolute_image_url
+    }
     return book_information
 
-def parse_comments(book_id: int):
-    url = f'https://tululu.org/b{book_id}/'
-    response = requests.get(url)
-    response.raise_for_status()
-    soup = BeautifulSoup(response.text, 'lxml')
-    relative_url = soup.find('body').find_all('div', class_="texts")
-    comment_list = []
-    for comment in relative_url:
-        print(comment_list.append(comment.find('span').text))
-
-def parse_genres(book_id: int):
-    url = f'https://tululu.org/b{book_id}/'
-    response = requests.get(url)
-    response.raise_for_status()
-    soup = BeautifulSoup(response.text, 'lxml')
-    genres = soup.find('body').find('span', class_="d_book").find_all('a')
-    genres_list = []
-    for genre in genres:
-        genres_list.append(genre.text)
-    print(genres_list)
-
-def parse_image(book_id: int):
-    url = f'https://tululu.org/b{book_id}/'
-    response = requests.get(url)
-    response.raise_for_status()
-    soup = BeautifulSoup(response.text, 'lxml')
-    relative_url = soup.find('body').find('div', class_="bookimage").find('img')['src']
-    return urljoin('https://tululu.org/', relative_url)
-
-
-def parse_name(book_id: int):
-    url = f'https://tululu.org/b{book_id}/'
-    response = requests.get(url)
-    response.raise_for_status()
-    soup = BeautifulSoup(response.text, 'lxml')
-    title_author_tag = soup.find('body').find('td', class_="ow_px_td").find('h1')
-    title_author_text = title_author_tag.text
-    title, author = title_author_text.split('::')
-    return f'{book_id}.{title.strip()}'
 
 def parse_book(book_id: int):
     url = f"https://tululu.org/txt.php?id={book_id}"
@@ -94,6 +61,7 @@ def save_book(response, filename, folder='books/'):
     Path(os.getcwd(), folder).mkdir(parents=True, exist_ok=True)
     with open(filepath, 'wb') as file:
         file.write(response.content)
+
 
 def save_image(book_id, image_url, folder='image/'):
     response = requests.get(image_url)
@@ -117,11 +85,13 @@ def main():
         try:
             parsed_book = parse_book(book_id)
             if not check_for_redirect(parsed_book):
-                filename = parse_name(book_id)
-                image_url = parse_image(book_id)
+                book_information = parse_book_page(book_id)
+                print(book_information)
+                filename = f'{book_information["ID"]}.{book_information["Заголовок"]}'
+                image_url = book_information['Ссылка обложки']
                 save_image(book_id, image_url)
                 save_book(parsed_book, filename)
-                print(parse_book_page(book_id))
+
         except HTTPError:
             print('HTTP not found')
 
