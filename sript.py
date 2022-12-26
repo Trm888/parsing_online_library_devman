@@ -15,6 +15,26 @@ def check_for_redirect(response):
     if response.history:
         raise HTTPError('HTTP not found')
 
+def parse_comments(book_id: int):
+    url = f'https://tululu.org/b{book_id}/'
+    response = requests.get(url)
+    response.raise_for_status()
+    soup = BeautifulSoup(response.text, 'lxml')
+    relative_url = soup.find('body').find_all('div', class_="texts")
+    for comment in relative_url:
+        print(comment.find('span').text)
+
+def parse_genres(book_id: int):
+    url = f'https://tululu.org/b{book_id}/'
+    response = requests.get(url)
+    response.raise_for_status()
+    soup = BeautifulSoup(response.text, 'lxml')
+    genres = soup.find('body').find('span', class_="d_book").find_all('a')
+    genres_list = []
+    for genre in genres:
+        genres_list.append(genre.text)
+    print(genres_list)
+
 def parse_image(book_id: int):
     url = f'https://tululu.org/b{book_id}/'
     response = requests.get(url)
@@ -77,6 +97,8 @@ def main():
             if not check_for_redirect(parsed_book):
                 filename = parse_name(book_id)
                 print(f'Заголовок: {filename}')
+                # parse_comments(book_id)
+                parse_genres(book_id)
                 image_url = parse_image(book_id)
                 save_image(book_id, image_url)
                 save_book(parsed_book, filename)
