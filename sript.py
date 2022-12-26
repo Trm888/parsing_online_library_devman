@@ -6,6 +6,7 @@ from pathvalidate import sanitize_filename
 import requests
 import urllib3
 from requests import HTTPError
+from urllib.parse import urljoin, urlparse, unquote
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -13,6 +14,14 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 def check_for_redirect(response):
     if response.history:
         raise HTTPError('HTTP not found')
+
+def parse_image(book_id: int):
+    url = f'https://tululu.org/b{book_id}/'
+    response = requests.get(url)
+    response.raise_for_status()
+    soup = BeautifulSoup(response.text, 'lxml')
+    relative_url = soup.find('body').find('div', class_="bookimage").find('img')['src']
+    return urljoin('https://tululu.org/', relative_url)
 
 
 def parse_name(book_id: int):
@@ -42,7 +51,19 @@ def save_book(response, filename, folder='books/'):
     with open(filepath, 'wb') as file:
         file.write(response.content)
 
-
+def save_image(book_id, image_url, folder='image/'):
+    response = requests.get(image_url)
+    response.raise_for_status()
+    url_path = urlparse(image_url).path
+    extension = os.path.splitext(unquote(url_path, encoding='utf-8', errors='replace'))[1]
+    filepath = Path(
+        os.getcwd(),
+        folder,
+        f'{book_id}{extension}'
+    )
+    Path(os.getcwd(), folder).mkdir(parents=True, exist_ok=True)
+    with open(filepath, 'wb') as file:
+        file.write(response.content)
 
 
 def main():
@@ -55,6 +76,9 @@ def main():
             parsed_book = parse_book(book_id)
             if not check_for_redirect(parsed_book):
                 filename = parse_name(book_id)
+                print(f'Заголовок: {filename}')
+                image_url = parse_image(book_id)
+                save_image(book_id, image_url)
                 save_book(parsed_book, filename)
 
         except HTTPError:
