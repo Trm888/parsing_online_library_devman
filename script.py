@@ -47,7 +47,7 @@ def parse_book_page(book_id: int):
     return book_information
 
 
-def parse_book(book_id: int):
+def get_response_from_web_library(book_id: int):
     url = f"https://tululu.org/txt.php?id={book_id}"
     response = requests.get(url)
     response.raise_for_status()
@@ -97,7 +97,7 @@ def main():
     end_id = args.end_id
     for book_id in range(start_id, end_id + 1):
         try:
-            parsed_book = parse_book(book_id)
+            parsed_book = get_response_from_web_library(book_id)
             if not check_for_redirect(parsed_book):
                 book_information = parse_book_page(book_id)
                 print(book_information)
