@@ -24,22 +24,23 @@ def get_soup_from_book_page(book_id: int):
     response.raise_for_status()
     return BeautifulSoup(response.text, 'lxml')
 
+
 def parse_book_page(book_id: int, soup):
     title_author_tag = soup.find('td', class_="ow_px_td").find('h1')
     title_author_text = title_author_tag.text
     title, author = title_author_text.split('::')
-    genres = soup.find('span', class_="d_book").find_all('a')
-    genres_list = [genre.text for genre in genres]
-    comments = soup.find_all('div', class_="texts")
-    comment_list = [comment.find('span').text for comment in comments]
+    genres_soup = soup.find('span', class_="d_book").find_all('a')
+    genres = [genre.text for genre in genres_soup]
+    comments_soup = soup.find_all('div', class_="texts")
+    comments = [comment.find('span').text for comment in comments_soup]
     relative_image_url = soup.find('div', class_="bookimage").find('img')['src']
     absolute_image_url = urljoin(f'https://tululu.org/b{book_id}/', relative_image_url)
     book = {
         'ID': book_id,
         'Автор': author.strip(),
         'Заголовок': title.strip(),
-        'Жанр': genres_list,
-        'Комментарии': comment_list,
+        'Жанр': genres,
+        'Комментарии': comments,
         'Ссылка обложки': absolute_image_url
     }
     return book
@@ -114,7 +115,6 @@ def main():
             print(err)
             time.sleep(3)
             continue
-
 
 
 if __name__ == '__main__':
