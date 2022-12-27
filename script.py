@@ -36,7 +36,7 @@ def parse_book_page(book_id: int):
         comment_list.append(comment.find('span').text)
     relative_image_url = soup.find('div', class_="bookimage").find('img')['src']
     absolute_image_url = urljoin('https://tululu.org/', relative_image_url)
-    book_information = {
+    book = {
         'ID': book_id,
         'Автор': author.strip(),
         'Заголовок': title.strip(),
@@ -44,7 +44,7 @@ def parse_book_page(book_id: int):
         'Комментарии': comment_list,
         'Ссылка обложки': absolute_image_url
     }
-    return book_information
+    return book
 
 
 def get_response_from_web_library(book_id: int):
@@ -101,10 +101,10 @@ def main():
             parsed_book = get_response_from_web_library(book_id)
             if check_for_redirect(parsed_book):
                 continue
-            book_information = parse_book_page(book_id)
-            print(book_information)
-            filename = f'{book_information["ID"]}.{book_information["Заголовок"]}'
-            image_url = book_information['Ссылка обложки']
+            book = parse_book_page(book_id)
+            print(book)
+            filename = f'{book["ID"]}.{book["Заголовок"]}'
+            image_url = book['Ссылка обложки']
             save_image(book_id, image_url)
             save_book(parsed_book, filename)
 
