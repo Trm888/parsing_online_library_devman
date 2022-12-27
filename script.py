@@ -99,13 +99,14 @@ def main():
     for book_id in range(start_id, end_id + 1):
         try:
             parsed_book = get_response_from_web_library(book_id)
-            if not check_for_redirect(parsed_book):
-                book_information = parse_book_page(book_id)
-                print(book_information)
-                filename = f'{book_information["ID"]}.{book_information["Заголовок"]}'
-                image_url = book_information['Ссылка обложки']
-                save_image(book_id, image_url)
-                save_book(parsed_book, filename)
+            if check_for_redirect(parsed_book):
+                continue
+            book_information = parse_book_page(book_id)
+            print(book_information)
+            filename = f'{book_information["ID"]}.{book_information["Заголовок"]}'
+            image_url = book_information['Ссылка обложки']
+            save_image(book_id, image_url)
+            save_book(parsed_book, filename)
 
         except HTTPError:
             print('HTTP not found')
