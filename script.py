@@ -48,8 +48,9 @@ def parse_book_page(book_id: int):
 
 
 def get_response_from_web_library(book_id: int):
-    url = f"https://tululu.org/txt.php?id={book_id}"
-    response = requests.get(url)
+    url = f"https://tululu.org/txt.php"
+    payload = {'id': book_id}
+    response = requests.get(url, params=payload)
     response.raise_for_status()
     return response
 
