@@ -18,11 +18,13 @@ def check_for_redirect(response):
         raise HTTPError('HTTP not found')
 
 
-def parse_book_page(book_id: int):
+def get_soup_from_book_page(book_id: int):
     url = f'https://tululu.org/b{book_id}/'
     response = requests.get(url)
     response.raise_for_status()
-    soup = BeautifulSoup(response.text, 'lxml')
+    return BeautifulSoup(response.text, 'lxml')
+
+def parse_book_page(book_id: int, soup):
     title_author_tag = soup.find('td', class_="ow_px_td").find('h1')
     title_author_text = title_author_tag.text
     title, author = title_author_text.split('::')
@@ -101,7 +103,8 @@ def main():
             parsed_book = get_response_from_web_library(book_id)
             if check_for_redirect(parsed_book):
                 continue
-            book = parse_book_page(book_id)
+            soup = get_soup_from_book_page(book_id)
+            book = parse_book_page(book_id, soup)
             print(book)
             filename = f'{book["ID"]}.{book["Заголовок"]}'
             image_url = book['Ссылка обложки']
