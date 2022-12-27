@@ -33,7 +33,7 @@ def parse_book_page(book_id: int, soup):
     comments = soup.find_all('div', class_="texts")
     comment_list = [comment.find('span').text for comment in comments]
     relative_image_url = soup.find('div', class_="bookimage").find('img')['src']
-    absolute_image_url = urljoin('https://tululu.org/', relative_image_url)
+    absolute_image_url = urljoin(f'https://tululu.org/b{book_id}/', relative_image_url)
     book = {
         'ID': book_id,
         'Автор': author.strip(),
