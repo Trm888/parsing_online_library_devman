@@ -15,7 +15,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 def check_for_redirect(response):
     if response.history:
-        raise HTTPError('HTTP not found')
+        raise HTTPError()
 
 
 def get_soup_from_book_page(book_id: int):
@@ -98,8 +98,7 @@ def main():
     for book_id in range(start_id, end_id + 1):
         try:
             parsed_book = get_response_from_web_library(book_id)
-            if check_for_redirect(parsed_book):
-                continue
+            check_for_redirect(parsed_book)
             soup = get_soup_from_book_page(book_id)
             book = parse_book_page(book_id, soup)
             print(book)
@@ -108,15 +107,12 @@ def main():
             save_image(book_id, image_url)
             save_book(parsed_book, filename)
 
-        except HTTPError as err:
-            print(err)
-            time.sleep(3)
-            continue
+        except HTTPError:
+            print('HTTPError')
 
-        except ConnectionError as err:
-            print(err)
+        except ConnectionError:
+            print('ConnectionError')
             time.sleep(3)
-            continue
 
 
 if __name__ == '__main__':
