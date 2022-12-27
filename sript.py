@@ -1,3 +1,4 @@
+import argparse
 import os
 from pathlib import Path
 from urllib.parse import urljoin, urlparse, unquote
@@ -79,9 +80,21 @@ def save_image(book_id, image_url, folder='image/'):
 
 
 def main():
-    Path(os.getcwd(), 'books').mkdir(parents=True, exist_ok=True)
-    book_qty = 10
-    for book_id in range(1, book_qty + 1):
+    parser = argparse.ArgumentParser(description='Запуск скрипта')
+    parser.add_argument(
+        'start_id',
+        help='Укажите id начальной книги',
+        nargs='?', default=1, type=int
+    )
+    parser.add_argument(
+        'end_id',
+        help='Укажите id конечной книги',
+        nargs='?', default=10, type=int
+    )
+    args = parser.parse_args()
+    start_id = args.start_id
+    end_id = args.end_id
+    for book_id in range(start_id, end_id + 1):
         try:
             parsed_book = parse_book(book_id)
             if not check_for_redirect(parsed_book):
