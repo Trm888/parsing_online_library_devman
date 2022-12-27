@@ -108,8 +108,10 @@ def main():
             save_image(book_id, image_url)
             save_book(parsed_book, filename)
 
-        except HTTPError:
-            print('HTTP not found')
+        except HTTPError as err:
+            print(err)
+            time.sleep(3)
+            continue
 
         except ConnectionError as err:
             print(err)
