@@ -1,5 +1,6 @@
 import argparse
 import os
+import time
 from pathlib import Path
 from urllib.parse import urljoin, urlparse, unquote
 
@@ -7,7 +8,7 @@ import requests
 import urllib3
 from bs4 import BeautifulSoup
 from pathvalidate import sanitize_filename
-from requests import HTTPError
+from requests import HTTPError, ConnectionError
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -107,6 +108,12 @@ def main():
 
         except HTTPError:
             print('HTTP not found')
+
+        except ConnectionError as err:
+            print(err)
+            time.sleep(3)
+            continue
+
 
 
 if __name__ == '__main__':
