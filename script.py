@@ -90,19 +90,18 @@ def main():
     end_id = args.end_id
     for book_id in range(start_id, end_id + 1):
         try:
-            parsed_book = get_response_from_web_library(book_id)
-            check_for_redirect(parsed_book)
+            response = get_response_from_web_library(book_id)
+            check_for_redirect(response)
             url = f'https://tululu.org/b{book_id}/'
-            response = requests.get(url)
-            response.raise_for_status()
+            response_from_soup = requests.get(url)
+            response_from_soup.raise_for_status()
             soup = BeautifulSoup(response.text, 'lxml')
-
             book = parse_book_page(book_id, soup)
             print(book)
             filename = f'{book["ID"]}.{book["Заголовок"]}'
             image_url = book['Ссылка обложки']
             save_image(book_id, image_url)
-            save_book(parsed_book, filename)
+            save_book(response, filename)
 
         except HTTPError:
             print('HTTPError')
