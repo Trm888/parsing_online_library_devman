@@ -95,7 +95,8 @@ def main():
             url = f'https://tululu.org/b{book_id}/'
             response_from_soup = requests.get(url)
             response_from_soup.raise_for_status()
-            soup = BeautifulSoup(response.text, 'lxml')
+            check_for_redirect(response_from_soup)
+            soup = BeautifulSoup(response_from_soup.text, 'lxml')
             book = parse_book_page(book_id, soup)
             print(book)
             filename = f'{book["ID"]}.{book["Заголовок"]}'
