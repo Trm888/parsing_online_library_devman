@@ -1,6 +1,7 @@
+import json
 import time
 from urllib.parse import urljoin
-import json
+
 import requests
 import urllib3
 from bs4 import BeautifulSoup
@@ -9,7 +10,6 @@ from requests import HTTPError, ConnectionError
 from script import get_response_from_web_library, check_for_redirect, save_book, save_image
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-
 
 
 def parse_link_page(url, start_page, end_page):
@@ -26,17 +26,15 @@ def parse_link_page(url, start_page, end_page):
 
 
 def parse_book_page(soup):
-    title_author_tag = soup.find('td', class_="ow_px_td").find('h1')
-    title_author_text = title_author_tag.text
+    title_author_text = soup.select_one("body .ow_px_td h1").text
     title, author = title_author_text.split('::')
-    genres_soup = soup.find('span', class_="d_book").find_all('a')
+    genres_soup = soup.select("span.d_book a")
     genres = [genre.text for genre in genres_soup]
-    comments_soup = soup.find_all('div', class_="texts")
-    comments = [comment.find('span').text for comment in comments_soup]
-    relative_image_url = soup.find('div', class_="bookimage").find('img')['src']
+    comments_soup = soup.select('div.texts .black')
+    comments = [comment.text for comment in comments_soup]
+    relative_image_url = soup.select_one('div.bookimage img')['src']
     absolute_image_url = urljoin(f'https://tululu.org/', relative_image_url)
     book_id = soup.select_one("td.r_comm input[name='bookid'] ")['value']
-
     book = {
         'ID': book_id,
         'Автор': author.strip(),
@@ -80,6 +78,7 @@ def main():
 
     with open('all_books_params', 'w', encoding='utf8') as json_file:
         json.dump(all_books, json_file, ensure_ascii=False)
+
 
 if __name__ == '__main__':
     main()
