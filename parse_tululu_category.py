@@ -24,8 +24,8 @@ def get_last_page(url):
 
 def get_books_url(url, start_page, end_page):
     books_url = []
-    for page in range(start_page, end_page):
-        url_page = f'{url}/{page}/'
+    for page_number in range(start_page, end_page):
+        url_page = f'{url}/{page_number}/'
         response = requests.get(url_page)
         response.raise_for_status()
         soup = BeautifulSoup(response.text, 'lxml')
