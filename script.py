@@ -93,8 +93,8 @@ def main():
     start_id = args.start_id
     end_id = args.end_id
     parent_folder = args.dest_folder
-    Path(os.getcwd(), 'image/').mkdir(parents=True, exist_ok=True)
-    Path(os.getcwd(), 'books/').mkdir(parents=True, exist_ok=True)
+    Path(parent_folder, 'image/').mkdir(parents=True, exist_ok=True)
+    Path(parent_folder, 'books/').mkdir(parents=True, exist_ok=True)
     for book_id in range(start_id, end_id + 1):
         try:
             book_text_response = get_response_from_web_library(book_id)

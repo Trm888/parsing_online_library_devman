@@ -53,7 +53,6 @@ def parse_book_page(soup):
         'Комментарии': comments,
         'Ссылка обложки': absolute_image_url
     }
-    # print(book)
     return book
 
 
@@ -108,6 +107,7 @@ def main():
 
     Path(parent_folder, 'image/').mkdir(parents=True, exist_ok=True)
     Path(parent_folder, 'books/').mkdir(parents=True, exist_ok=True)
+    Path(json_folder).mkdir(parents=True, exist_ok=True)
 
     book_links = parse_link_page(url, start_page, end_page)
     all_books = []
