@@ -1,3 +1,4 @@
+import argparse
 import json
 import time
 from urllib.parse import urljoin
@@ -12,9 +13,16 @@ from script import get_response_from_web_library, check_for_redirect, save_book,
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
+def get_last_page(url):
+    response = requests.get(url)
+    response.raise_for_status()
+    soup = BeautifulSoup(response.text, 'lxml')
+    return soup.select("a.npage")[-1].text
+
+
 def parse_link_page(url, start_page, end_page):
     books_url = []
-    for page in range(start_page, end_page + 1):
+    for page in range(start_page, end_page):
         url_page = f'{url}/{page}/'
         response = requests.get(url_page)
         response.raise_for_status()
@@ -43,14 +51,28 @@ def parse_book_page(soup):
         'Комментарии': comments,
         'Ссылка обложки': absolute_image_url
     }
-    print(book)
+    # print(book)
     return book
 
 
 def main():
-    start_page = 1
-    end_page = 1
     url = f"https://tululu.org/l55/"
+    last_page = int(get_last_page(url)) + 1
+    parser = argparse.ArgumentParser(description='Запуск скрипта')
+    parser.add_argument(
+        'start_page',
+        help='Укажите id начальной книги',
+        nargs='?', default=1, type=int
+    )
+    parser.add_argument(
+        'end_page',
+        help='Укажите id конечной книги',
+        nargs='?', default=last_page, type=int
+    )
+    args = parser.parse_args()
+    start_page = args.start_page
+    end_page = args.end_page
+
     book_links = parse_link_page(url, start_page, end_page)
     all_books = []
     for book_link in book_links:
@@ -66,6 +88,7 @@ def main():
             image_url = book['Ссылка обложки']
             save_image(book["ID"], image_url)
             save_book(book_text_response, filename)
+            print(book_link)
 
             all_books.append(book)
 
