@@ -47,28 +47,26 @@ def get_response_from_web_library(book_id: int):
     return response
 
 
-def save_book(response, filename, folder='books/'):
+def save_book(response, filename, parent_folder):
     filepath = Path(
-        os.getcwd(),
-        folder,
+        parent_folder,
+        'books/',
         f'{sanitize_filename(filename)}.txt'
     )
-    Path(os.getcwd(), folder).mkdir(parents=True, exist_ok=True)
     with open(filepath, 'wb') as file:
         file.write(response.content)
 
 
-def save_image(book_id, image_url, folder='image/'):
+def save_image(book_id, image_url, parent_folder):
     response = requests.get(image_url)
     response.raise_for_status()
     url_path = urlparse(image_url).path
     extension = os.path.splitext(unquote(url_path, encoding='utf-8', errors='replace'))[1]
     filepath = Path(
-        os.getcwd(),
-        folder,
+        parent_folder,
+        'image/',
         f'{book_id}{extension}'
     )
-    Path(os.getcwd(), folder).mkdir(parents=True, exist_ok=True)
     with open(filepath, 'wb') as file:
         file.write(response.content)
 
@@ -85,9 +83,18 @@ def main():
         help='Укажите id конечной книги',
         nargs='?', default=10, type=int
     )
+    parser.add_argument(
+        '-f',
+        '--dest_folder',
+        help='Укажите путь для скачивания',
+        nargs='?', default=os.getcwd(), type=str
+    )
     args = parser.parse_args()
     start_id = args.start_id
     end_id = args.end_id
+    parent_folder = args.dest_folder
+    Path(os.getcwd(), 'image/').mkdir(parents=True, exist_ok=True)
+    Path(os.getcwd(), 'books/').mkdir(parents=True, exist_ok=True)
     for book_id in range(start_id, end_id + 1):
         try:
             book_text_response = get_response_from_web_library(book_id)
@@ -101,8 +108,8 @@ def main():
             print(book)
             filename = f'{book["ID"]}.{book["Заголовок"]}'
             image_url = book['Ссылка обложки']
-            save_image(book_id, image_url)
-            save_book(book_text_response, filename)
+            save_image(book_id, image_url, parent_folder)
+            save_book(book_text_response, filename, parent_folder)
 
         except HTTPError:
             print('HTTPError')

@@ -1,6 +1,8 @@
 import argparse
 import json
+import os
 import time
+from pathlib import Path
 from urllib.parse import urljoin
 
 import requests
@@ -60,18 +62,52 @@ def main():
     last_page = int(get_last_page(url)) + 1
     parser = argparse.ArgumentParser(description='Запуск скрипта')
     parser.add_argument(
-        'start_page',
+        '-s',
+        '--start_page',
         help='Укажите id начальной книги',
         nargs='?', default=1, type=int
     )
     parser.add_argument(
-        'end_page',
+        '-e',
+        '--end_page',
         help='Укажите id конечной книги',
         nargs='?', default=last_page, type=int
     )
+    parser.add_argument(
+        '-f',
+        '--dest_folder',
+        help='Укажите путь для скачивания',
+        nargs='?', default=os.getcwd(), type=str
+    )
+    parser.add_argument(
+        '-si',
+        '--skip_image',
+        help='Скачивание картинок',
+        action='store_false',
+        default=True
+    )
+    parser.add_argument(
+        '-st',
+        '--skip_txt',
+        help='Скачивание книг',
+        action='store_false',
+        default=True
+    )
+    parser.add_argument(
+        '-jp',
+        '--json_path',
+        help='Укажите путь JSON файла',
+        nargs='?', default=os.getcwd(), type=str
+    )
+
     args = parser.parse_args()
     start_page = args.start_page
     end_page = args.end_page
+    parent_folder = args.dest_folder
+    json_folder = args.json_path
+
+    Path(parent_folder, 'image/').mkdir(parents=True, exist_ok=True)
+    Path(parent_folder, 'books/').mkdir(parents=True, exist_ok=True)
 
     book_links = parse_link_page(url, start_page, end_page)
     all_books = []
@@ -86,8 +122,10 @@ def main():
             check_for_redirect(book_text_response)
             filename = f'{book["ID"]}.{book["Заголовок"]}'
             image_url = book['Ссылка обложки']
-            save_image(book["ID"], image_url)
-            save_book(book_text_response, filename)
+            if args.skip_image:
+                save_image(book["ID"], image_url, parent_folder)
+            if args.skip_txt:
+                save_book(book_text_response, filename, parent_folder)
             print(book_link)
 
             all_books.append(book)
@@ -98,8 +136,8 @@ def main():
         except ConnectionError:
             print('ConnectionError')
             time.sleep(3)
-
-    with open('all_books_params', 'w', encoding='utf8') as json_file:
+    json_filepath = Path(json_folder, 'all_books_params')
+    with open(json_filepath, 'w', encoding='utf8') as json_file:
         json.dump(all_books, json_file, ensure_ascii=False)
 
 
