@@ -70,15 +70,15 @@ def main():
         '-si',
         '--skip_image',
         help='Скачивание картинок',
-        action='store_false',
-        default=True
+        action='store_true',
+        default=False
     )
     parser.add_argument(
         '-st',
         '--skip_txt',
         help='Скачивание книг',
-        action='store_false',
-        default=True
+        action='store_true',
+        default=False
     )
     parser.add_argument(
         '-jp',
@@ -127,9 +127,9 @@ def main():
             check_for_redirect(book_text_response)
             filename = f'{book["ID"]}.{book["Заголовок"]}'
             image_url = book['Ссылка обложки']
-            if args.skip_image:
+            if not args.skip_image:
                 save_image(book["ID"], image_url, parent_folder)
-            if args.skip_txt:
+            if not args.skip_txt:
                 save_book(book_text_response, filename, parent_folder)
             print(book_link)
 
