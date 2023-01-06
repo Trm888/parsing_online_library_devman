@@ -106,8 +106,7 @@ def main():
             response.raise_for_status()
             check_for_redirect(response)
             soup = BeautifulSoup(response.text, 'lxml')
-            books = soup.select("div.bookimage a")
-            for book in books:
+            for book in soup.select("div.bookimage a"):
                 books_url.append(urljoin(page_url, book['href']))
         except HTTPError:
             print('HTTPError')
