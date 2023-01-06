@@ -22,19 +22,6 @@ def get_last_page(url):
     return soup.select("a.npage")[-1].text
 
 
-def get_books_url(url, start_page, end_page):
-    books_url = []
-    for page_number in range(start_page, end_page):
-        url_page = f'{url}/{page_number}/'
-        response = requests.get(url_page)
-        response.raise_for_status()
-        soup = BeautifulSoup(response.text, 'lxml')
-        books = soup.select("div.bookimage a")
-        for book in books:
-            books_url.append(urljoin(url_page, book['href']))
-    return books_url
-
-
 def parse_book_page(soup):
     title_author_text = soup.select_one("body .ow_px_td h1").text
     title, author = title_author_text.split('::')
@@ -109,9 +96,27 @@ def main():
     Path(parent_folder, 'books/').mkdir(parents=True, exist_ok=True)
     Path(json_folder).mkdir(parents=True, exist_ok=True)
 
-    book_links = get_books_url(url, start_page, end_page)
     all_books = []
-    for book_link in book_links:
+
+    books_url = []
+    for page_number in range(start_page, end_page):
+        page_url = f'{url}/{page_number}/'
+        try:
+            response = requests.get(page_url)
+            response.raise_for_status()
+            check_for_redirect(response)
+            soup = BeautifulSoup(response.text, 'lxml')
+            books = soup.select("div.bookimage a")
+            for book in books:
+                books_url.append(urljoin(page_url, book['href']))
+        except HTTPError:
+            print('HTTPError')
+
+        except ConnectionError:
+            print('ConnectionError')
+            time.sleep(3)
+
+    for book_link in books_url:
         try:
             response = requests.get(book_link)
             response.raise_for_status()
