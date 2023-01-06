@@ -1,6 +1,7 @@
 import argparse
 import json
 import os
+import sys
 import time
 from pathlib import Path
 from urllib.parse import urljoin
@@ -112,7 +113,7 @@ def main():
             print('HTTPError')
 
         except ConnectionError:
-            print('ConnectionError')
+            print('ConnectionError', file=sys.stderr)
             time.sleep(3)
 
     for book_link in books_url:
@@ -138,7 +139,7 @@ def main():
             print('HTTPError')
 
         except ConnectionError:
-            print('ConnectionError')
+            print('ConnectionError', file=sys.stderr)
             time.sleep(3)
     json_filepath = Path(json_folder, 'all_books_params')
     with open(json_filepath, 'w', encoding='utf8') as json_file:
