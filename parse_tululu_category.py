@@ -22,7 +22,7 @@ def get_last_page(url):
     return soup.select("a.npage")[-1].text
 
 
-def parse_link_page(url, start_page, end_page):
+def get_books_url(url, start_page, end_page):
     books_url = []
     for page in range(start_page, end_page):
         url_page = f'{url}/{page}/'
@@ -109,7 +109,7 @@ def main():
     Path(parent_folder, 'books/').mkdir(parents=True, exist_ok=True)
     Path(json_folder).mkdir(parents=True, exist_ok=True)
 
-    book_links = parse_link_page(url, start_page, end_page)
+    book_links = get_books_url(url, start_page, end_page)
     all_books = []
     for book_link in book_links:
         try:
