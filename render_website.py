@@ -1,8 +1,10 @@
 import json
+import os
+from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from livereload import Server
-
+from more_itertools import chunked
 
 def get_catalog():
     with open("all_books_params", "r", encoding="utf8") as my_file:
@@ -21,13 +23,18 @@ def on_reload():
 
     template = env.get_template('template.html')
 
-    rendered_page = template.render(
-        films_catalog=get_catalog()
+    block_films = list(chunked(get_catalog(), 20))
 
-    )
+    os.makedirs('pages/', exist_ok=True)
+    for number, page in enumerate(block_films):
 
-    with open('index.html', 'w', encoding="utf8") as file:
-        file.write(rendered_page)
+        rendered_page = template.render(
+            films_catalog=page
+        )
+        filepath = Path('pages/', f'index{number}.html')
+        print(filepath)
+        with open(filepath, 'w', encoding="utf8") as file:
+            file.write(rendered_page)
     print("Site rebuilt")
 
 
