@@ -21,7 +21,8 @@ def on_reload():
     template = env.get_template('template.html')
 
     rendered_page = template.render(
-        films_catalog=get_catalog()
+        films_catalog_column=get_catalog(),
+        films_catalog_column1=get_catalog()
     )
 
     with open('index.html', 'w', encoding="utf8") as file:
@@ -30,8 +31,6 @@ def on_reload():
 
 
 def main():
-    # server = HTTPServer(('0.0.0.0', 8000), SimpleHTTPRequestHandler)
-    # server.serve_forever()
     on_reload()
     server = Server()
     server.watch('template.html', on_reload)
