@@ -1,9 +1,10 @@
 import argparse
 import json
+import ntpath
 import os
 import sys
 import time
-from pathlib import Path
+from pathlib import Path, PurePath, PurePosixPath
 from urllib.parse import urljoin
 
 import requests
@@ -23,7 +24,7 @@ def get_last_page(url):
     return soup.select("a.npage")[-1].text
 
 
-def parse_book_page(soup):
+def parse_book_page(soup, parent_folder):
     title_author_text = soup.select_one("body .ow_px_td h1").text
     title, author = title_author_text.split('::')
     genres_soup = soup.select("span.d_book a")
@@ -39,7 +40,7 @@ def parse_book_page(soup):
         'Заголовок': title.strip(),
         'Жанр': genres,
         'Комментарии': comments,
-        'img_url': absolute_image_url
+        'img_url': absolute_image_url,
     }
     return book
 
@@ -122,17 +123,37 @@ def main():
             response.raise_for_status()
             check_for_redirect(response)
             soup = BeautifulSoup(response.text, 'lxml')
-            book = parse_book_page(soup)
-            book_text_response = get_response_from_web_library(book["ID"])
+
+            title_author_text = soup.select_one("body .ow_px_td h1").text
+            title, author = title_author_text.split('::')
+            genres_soup = soup.select("span.d_book a")
+            genres = [genre.text for genre in genres_soup]
+            comments_soup = soup.select('div.texts .black')
+            comments = [comment.text for comment in comments_soup]
+            relative_image_url = soup.select_one('div.bookimage img')['src']
+            absolute_image_url = urljoin(f'https://tululu.org/', relative_image_url)
+            book_id = int(soup.select_one("td.r_comm input[name='bookid'] ")['value'])
+
+            book_text_response = get_response_from_web_library(book_id)
             check_for_redirect(book_text_response)
-            filename = f'{book["ID"]}.{book["Заголовок"]}'
-            image_url = book['img_url']
+            filename = f'{book_id}.{title.strip()}'
+            image_url = absolute_image_url
             if not args.skip_image:
-                save_image(book["ID"], image_url, parent_folder)
+                image_filepath = save_image(book_id, image_url, parent_folder)
             if not args.skip_txt:
-                save_book(book_text_response, filename, parent_folder)
+                book_filepath = save_book(book_text_response, filename, parent_folder)
             print(book_link)
 
+            book = {
+                'ID': book_id,
+                'Автор': author.strip(),
+                'Заголовок': title.strip(),
+                'Жанр': genres,
+                'Комментарии': comments,
+                'img_url': absolute_image_url,
+                'img_filepath': os.path.relpath(image_filepath),
+                'book_filepath': os.path.relpath(book_filepath)
+            }
             all_books.append(book)
 
         except HTTPError:
@@ -141,6 +162,7 @@ def main():
         except ConnectionError:
             print('ConnectionError', file=sys.stderr)
             time.sleep(3)
+
     json_filepath = Path(json_folder, 'all_books_params')
     with open(json_filepath, 'w', encoding='utf8') as json_file:
         json.dump(all_books, json_file, ensure_ascii=False)

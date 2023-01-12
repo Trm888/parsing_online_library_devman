@@ -18,13 +18,13 @@
           <div class="card mb-3" style="max-width: 540px;">
             <div class="row no-gutters">
               <div class="col-6">
-                <img src="{{book.img_url}}" class="card-img" alt="{{book.ID}}">
+                <img src="{{book.img_filepath}}" class="card-img" alt="{{book.ID}}">
               </div>
               <div class="col-6">
                 <div class="card-body">
                   <h5 class="card-title">{{book.Заголовок}}</h5>
                   <p class="card-text">{{book.Автор}}</p>
-                  <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
+                  <a href="{{book.book_filepath}}" target="_blank"> Читать </a>
                 </div>
               </div>
             </div>

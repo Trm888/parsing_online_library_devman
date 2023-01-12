@@ -55,6 +55,7 @@ def save_book(response, filename, parent_folder):
     )
     with open(filepath, 'wb') as file:
         file.write(response.content)
+        return filepath
 
 
 def save_image(book_id, image_url, parent_folder):
@@ -69,6 +70,7 @@ def save_image(book_id, image_url, parent_folder):
     )
     with open(filepath, 'wb') as file:
         file.write(response.content)
+    return filepath
 
 
 def main():
