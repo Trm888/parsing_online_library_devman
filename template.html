@@ -11,6 +11,42 @@
     <title>Hello, world!</title>
   </head>
   <body>
+  <div class="mx-auto" style="width: 200px;">
+      <nav aria-label="Page navigation example">
+      <ul class="pagination">
+        {% if current_page == 0 %}
+          <li class="page-item disabled">
+            <a class="page-link" href="index{{current_page - 1}}.html" tabindex="-1" aria-disabled="true">Previous</a>
+          </li>
+        {% else %}
+          <li class="page-item">
+            <a class="page-link" href="index{{current_page - 1}}.html">Previous</a>
+          </li>
+        {% endif %}
+        {% for page in all_page %}
+         {% if current_page == page %}
+          <li class="page-item active" aria-current="page">
+            <a class="page-link" href="index{{current_page}}.html">{{current_page + 1}}</a>
+          </li>
+          {% else %}
+            <li class="page-item">
+            <a class="page-link" href="index{{page}}.html">{{page + 1}}</a></li>
+          {% endif %}
+        {% endfor %}
+        {% if current_page == last_page - 1 %}
+          <li class="page-item disabled">
+            <a class="page-link" href="index{{current_page + 1}}.html" aria-label="Next">
+              <span aria-hidden="true">Next</span></a>
+          </li>
+        {% else %}
+          <li class="page-item">
+            <a class="page-link" href="index{{current_page + 1}}.html" aria-label="Next">
+              <span aria-hidden="true">Next</span></a>
+          </li>
+        {% endif %}
+      </ul>
+    </nav>
+  </div>
   <div class="container">
     <div class="row">
       {% for book in films_catalog %}
@@ -24,13 +60,13 @@
                 <div class="card-body">
                   <h5 class="card-title">{{book.Заголовок}}</h5>
                   <p class="card-text">{{book.Автор}}</p>
-                  <a href="{{book.book_filepath}}" target="_blank"> Читать </a>
+                  <a href="../{{book.book_filepath}}" target="_blank"> Читать </a>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        {% endfor %}
+       {% endfor %}
     </div>
   </div>
     <!-- Optional JavaScript -->

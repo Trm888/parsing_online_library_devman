@@ -23,13 +23,16 @@ def on_reload():
 
     template = env.get_template('template.html')
 
-    block_films = list(chunked(get_catalog(), 20))
-
+    grouped_films_blocks = list(chunked(get_catalog(), 20))
+    blocks_qnt = len(grouped_films_blocks)
     os.makedirs('pages/', exist_ok=True)
-    for number, page in enumerate(block_films):
+    for number, films_block in enumerate(grouped_films_blocks):
 
         rendered_page = template.render(
-            films_catalog=page
+            films_catalog=films_block,
+            current_page=number,
+            all_page=list(range(blocks_qnt)),
+            last_page=blocks_qnt
         )
         filepath = Path('pages/', f'index{number}.html')
         print(filepath)
