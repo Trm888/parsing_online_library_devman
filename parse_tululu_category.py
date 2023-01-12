@@ -39,7 +39,7 @@ def parse_book_page(soup):
         'Заголовок': title.strip(),
         'Жанр': genres,
         'Комментарии': comments,
-        'Ссылка обложки': absolute_image_url
+        'img_url': absolute_image_url
     }
     return book
 
@@ -126,7 +126,7 @@ def main():
             book_text_response = get_response_from_web_library(book["ID"])
             check_for_redirect(book_text_response)
             filename = f'{book["ID"]}.{book["Заголовок"]}'
-            image_url = book['Ссылка обложки']
+            image_url = book['img_url']
             if not args.skip_image:
                 save_image(book["ID"], image_url, parent_folder)
             if not args.skip_txt:
