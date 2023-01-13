@@ -6,6 +6,7 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 from livereload import Server
 from more_itertools import chunked
 
+
 def get_catalog():
     with open("all_books_params", "r", encoding="utf8") as my_file:
         films_catalog_json = my_file.read()
@@ -27,7 +28,6 @@ def on_reload():
     blocks_qnt = len(grouped_films_blocks)
     os.makedirs('pages/', exist_ok=True)
     for number, films_block in enumerate(grouped_films_blocks):
-
         rendered_page = template.render(
             films_catalog=films_block,
             current_page=number,
@@ -42,8 +42,6 @@ def on_reload():
 
 
 def main():
-    # server = HTTPServer(('0.0.0.0', 8000), SimpleHTTPRequestHandler)
-    # server.serve_forever()
     on_reload()
     server = Server()
     server.watch('template.html', on_reload)
