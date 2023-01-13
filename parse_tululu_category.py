@@ -1,10 +1,9 @@
 import argparse
 import json
-import ntpath
 import os
 import sys
 import time
-from pathlib import Path, PurePath, PurePosixPath
+from pathlib import Path
 from urllib.parse import urljoin
 
 import requests
