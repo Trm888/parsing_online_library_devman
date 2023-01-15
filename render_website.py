@@ -1,3 +1,4 @@
+import argparse
 import json
 import os
 from pathlib import Path
@@ -7,8 +8,8 @@ from livereload import Server
 from more_itertools import chunked
 
 
-def get_catalog():
-    with open("all_books_params", "r", encoding="utf8") as my_file:
+def get_catalog(filepath):
+    with open(filepath, "r", encoding="utf8") as my_file:
         films_catalog_json = my_file.read()
 
     films_catalog = json.loads(films_catalog_json)
@@ -16,7 +17,7 @@ def get_catalog():
     return films_catalog
 
 
-def on_reload():
+def on_reload(grouped_films_blocks):
     env = Environment(
         loader=FileSystemLoader('.'),
         autoescape=select_autoescape(['html', 'xml'])
@@ -24,7 +25,7 @@ def on_reload():
 
     template = env.get_template('template.html')
 
-    grouped_films_blocks = list(chunked(get_catalog(), 20))
+
     blocks_qnt = len(grouped_films_blocks)
     os.makedirs('pages/', exist_ok=True)
     for number, films_block in enumerate(grouped_films_blocks):
@@ -42,9 +43,15 @@ def on_reload():
 
 
 def main():
-    on_reload()
+    parser = argparse.ArgumentParser(description='Запуск скрипта')
+    parser.add_argument('-p', '--filepath', help='Укажите путь к файлу', default='all_books_params')
+    args = parser.parse_args()
+    filepath = args.filepath
+    grouped_films_blocks = list(chunked(get_catalog(filepath), 20))
+
+    # on_reload(grouped_films_blocks)
     server = Server()
-    server.watch('template.html', on_reload)
+    server.watch('template.html', on_reload(grouped_films_blocks))
 
     server.serve(root='.')
 
