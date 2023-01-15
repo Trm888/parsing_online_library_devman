@@ -24,14 +24,14 @@ def on_reload(grouped_blocks_book_cards):
 
     template = env.get_template('template.html')
 
-    blocks_qnt = len(grouped_blocks_book_cards)
+    blocks_quantity = len(grouped_blocks_book_cards)
     os.makedirs('pages/', exist_ok=True)
     for number, films_block in enumerate(grouped_blocks_book_cards):
         rendered_page = template.render(
             films_catalog=films_block,
             current_page=number,
-            all_page=list(range(blocks_qnt)),
-            last_page=blocks_qnt
+            all_page=list(range(blocks_quantity)),
+            last_page=blocks_quantity
         )
         filepath = Path('pages/', f'index{number}.html')
         print(filepath)
