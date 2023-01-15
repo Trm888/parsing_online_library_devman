@@ -11,8 +11,6 @@ from more_itertools import chunked
 def get_catalog(filepath):
     with open(filepath, "r", encoding="utf8") as my_file:
         films_catalog = json.load(my_file)
-
-    print(films_catalog)
     return films_catalog
 
 
