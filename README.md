@@ -58,6 +58,15 @@ python parse_tululu_category.py -s 700 -e 701 -f 'E:\lib\my' -si -jp 'E:\downloa
 python render_website.py
 ```
 Страницы создадутся в папке pages.
+
+В качестве аргумента можно указать путь к файлу с книгами:
+```
+python render_website.py -p "E:\Dev\parsing_online_library#3_devman\all_book"
+```
+Также можно указать данный параметр в файле config.ini. Создайте файл config.ini в той де директории, где находится скрипт, укажите в нем путь к файлу с книгами.
+![img.png](img.png)
+
+
 Пример библиотеки: https://trm888.github.io/parsing_online_library_devman/pages/index0.html
 
 
