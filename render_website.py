@@ -1,8 +1,8 @@
-import argparse
 import json
 import os
 from pathlib import Path
 
+import configargparse
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from livereload import Server
 from more_itertools import chunked
@@ -25,7 +25,6 @@ def on_reload(grouped_films_blocks):
 
     template = env.get_template('template.html')
 
-
     blocks_qnt = len(grouped_films_blocks)
     os.makedirs('pages/', exist_ok=True)
     for number, films_block in enumerate(grouped_films_blocks):
@@ -43,13 +42,14 @@ def on_reload(grouped_films_blocks):
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Запуск скрипта')
-    parser.add_argument('-p', '--filepath', help='Укажите путь к файлу', default='all_books_params')
+    parser = configargparse.ArgumentParser(default_config_files=['config.ini'])
+    parser.add_argument('-c', '--config', is_config_file=True, help='Путь к файлу конфигурации')
+    parser.add_argument('-p', '--filepath', required=True, help='Путь к файлу с фильмами')
     args = parser.parse_args()
     filepath = args.filepath
+    print(filepath)
     grouped_films_blocks = list(chunked(get_catalog(filepath), 20))
 
-    # on_reload(grouped_films_blocks)
     server = Server()
     server.watch('template.html', on_reload(grouped_films_blocks))
 
