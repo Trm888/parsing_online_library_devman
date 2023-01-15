@@ -150,8 +150,8 @@ def main():
                 'Жанр': genres,
                 'Комментарии': comments,
                 'img_url': absolute_image_url,
-                'img_filepath': os.path.relpath(image_filepath),
-                'book_filepath': os.path.relpath(book_filepath)
+                'img_filepath': Path(os.path.relpath(image_filepath)).as_posix(),
+                'book_filepath': Path(os.path.relpath(book_filepath)).as_posix()
             }
             all_books.append(book)
 

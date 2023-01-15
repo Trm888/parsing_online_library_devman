@@ -7,8 +7,8 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 from livereload import Server
 from more_itertools import chunked
 
-
 QUANTITY_BOOKS_ON_PAGE = 20
+
 
 def get_catalog(filepath):
     with open(filepath, "r", encoding="utf8") as my_file:
