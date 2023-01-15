@@ -8,6 +8,8 @@ from livereload import Server
 from more_itertools import chunked
 
 
+QUANTITY_BOOKS_ON_PAGE = 20
+
 def get_catalog(filepath):
     with open(filepath, "r", encoding="utf8") as my_file:
         films_catalog = json.load(my_file)
@@ -45,7 +47,7 @@ def main():
     args = parser.parse_args()
     filepath = args.filepath
     print(filepath)
-    grouped_blocks_book_cards = list(chunked(get_catalog(filepath), 20))
+    grouped_blocks_book_cards = list(chunked(get_catalog(filepath), QUANTITY_BOOKS_ON_PAGE))
 
     server = Server()
     server.watch('template.html', on_reload(grouped_blocks_book_cards))
