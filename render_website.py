@@ -14,7 +14,7 @@ def get_catalog(filepath):
     return films_catalog
 
 
-def on_reload(grouped_films_blocks):
+def on_reload(grouped_blocks_book_cards):
     env = Environment(
         loader=FileSystemLoader('.'),
         autoescape=select_autoescape(['html', 'xml'])
@@ -22,9 +22,9 @@ def on_reload(grouped_films_blocks):
 
     template = env.get_template('template.html')
 
-    blocks_qnt = len(grouped_films_blocks)
+    blocks_qnt = len(grouped_blocks_book_cards)
     os.makedirs('pages/', exist_ok=True)
-    for number, films_block in enumerate(grouped_films_blocks):
+    for number, films_block in enumerate(grouped_blocks_book_cards):
         rendered_page = template.render(
             films_catalog=films_block,
             current_page=number,
@@ -45,10 +45,10 @@ def main():
     args = parser.parse_args()
     filepath = args.filepath
     print(filepath)
-    grouped_films_blocks = list(chunked(get_catalog(filepath), 20))
+    grouped_blocks_book_cards = list(chunked(get_catalog(filepath), 20))
 
     server = Server()
-    server.watch('template.html', on_reload(grouped_films_blocks))
+    server.watch('template.html', on_reload(grouped_blocks_book_cards))
 
     server.serve(root='.')
 
