@@ -34,10 +34,8 @@ def on_reload(grouped_blocks_book_cards):
             last_page=blocks_quantity
         )
         filepath = Path('pages/', f'index{number}.html')
-        print(filepath)
         with open(filepath, 'w', encoding="utf8") as file:
             file.write(rendered_page)
-    print("Site rebuilt")
 
 
 def main():
@@ -46,7 +44,6 @@ def main():
     parser.add_argument('-p', '--filepath', required=True, help='Путь к файлу с фильмами')
     args = parser.parse_args()
     filepath = args.filepath
-    print(filepath)
     grouped_blocks_book_cards = list(chunked(get_catalog(filepath), QUANTITY_BOOKS_ON_PAGE))
 
     server = Server()
