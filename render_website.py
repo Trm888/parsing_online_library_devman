@@ -12,8 +12,8 @@ QUANTITY_BOOKS_ON_PAGE = 20
 
 def get_catalog(filepath):
     with open(filepath, "r", encoding="utf8") as my_file:
-        films_catalog = json.load(my_file)
-    return films_catalog
+        books_catalog = json.load(my_file)
+    return books_catalog
 
 
 def on_reload(grouped_blocks_book_cards):
@@ -26,9 +26,9 @@ def on_reload(grouped_blocks_book_cards):
 
     blocks_quantity = len(grouped_blocks_book_cards)
     os.makedirs('pages/', exist_ok=True)
-    for number, films_block in enumerate(grouped_blocks_book_cards):
+    for number, block_book_cards in enumerate(grouped_blocks_book_cards):
         rendered_page = template.render(
-            films_catalog=films_block,
+            books_catalog=block_book_cards,
             current_page=number,
             all_page=list(range(blocks_quantity)),
             last_page=blocks_quantity
