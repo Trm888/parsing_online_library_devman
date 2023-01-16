@@ -41,7 +41,7 @@ def on_reload(grouped_blocks_book_cards):
 def main():
     parser = configargparse.ArgumentParser(default_config_files=['config.ini'])
     parser.add_argument('-c', '--config', is_config_file=True, help='Путь к файлу конфигурации')
-    parser.add_argument('-p', '--filepath', required=True, help='Путь к файлу с фильмами')
+    parser.add_argument('-p', '--filepath', required=True, help='Путь к файлу с информацией о книгах')
     args = parser.parse_args()
     filepath = args.filepath
     grouped_blocks_book_cards = list(chunked(get_catalog(filepath), QUANTITY_BOOKS_ON_PAGE))
