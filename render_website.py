@@ -16,14 +16,18 @@ def get_catalog(filepath):
     return books_catalog
 
 
-def on_reload(grouped_blocks_book_cards):
+def on_reload():
+    parser = configargparse.ArgumentParser(default_config_files=['config.ini'])
+    parser.add_argument('-c', '--config', is_config_file=True, help='Путь к файлу конфигурации')
+    parser.add_argument('-p', '--filepath', required=True, help='Путь к файлу с информацией о книгах')
+    args = parser.parse_args()
+    filepath = args.filepath
+    grouped_blocks_book_cards = list(chunked(get_catalog(filepath), QUANTITY_BOOKS_ON_PAGE))
     env = Environment(
         loader=FileSystemLoader('.'),
         autoescape=select_autoescape(['html', 'xml'])
     )
-
     template = env.get_template('template.html')
-
     blocks_quantity = len(grouped_blocks_book_cards)
     os.makedirs('pages/', exist_ok=True)
     for number, block_book_cards in enumerate(grouped_blocks_book_cards):
@@ -39,16 +43,9 @@ def on_reload(grouped_blocks_book_cards):
 
 
 def main():
-    parser = configargparse.ArgumentParser(default_config_files=['config.ini'])
-    parser.add_argument('-c', '--config', is_config_file=True, help='Путь к файлу конфигурации')
-    parser.add_argument('-p', '--filepath', required=True, help='Путь к файлу с информацией о книгах')
-    args = parser.parse_args()
-    filepath = args.filepath
-    grouped_blocks_book_cards = list(chunked(get_catalog(filepath), QUANTITY_BOOKS_ON_PAGE))
-
+    on_reload()
     server = Server()
-    server.watch('template.html', on_reload(grouped_blocks_book_cards))
-
+    server.watch('template.html', on_reload)
     server.serve(root='.')
 
 
